@@ -1,0 +1,36 @@
+import clr
+clr.AddReference('RevitAPI')
+from Autodesk.Revit.DB import *
+ 
+clr.AddReference("RevitNodes")
+import Revit
+clr.ImportExtensions(Revit.Elements)
+ 
+clr.AddReference("RevitServices")
+import RevitServices
+from RevitServices.Persistence import DocumentManager
+from RevitServices.Transactions import TransactionManager
+ 
+ 
+ 
+ 
+doc = DocumentManager.Instance.CurrentDBDocument
+sheetnames = IN[0]
+sheetnumbers = IN[1]
+titleblock = UnwrapElement(IN[2]) #unwrapped titleblock
+sheetlist = list()
+ 
+ 
+ 
+TransactionManager.Instance.EnsureInTransaction(doc) # you need an active transaction as you will create elements
+ 
+ 
+for number in sheetnumbers:
+        newsheet = ViewSheet.Create(doc,titleblock.Id)# create a new sheet where titleblock.Id is the id of the titleblock
+        newsheet.Name = sheetnames[number]
+        newsheet.SheetNumber = sheetnumbers[number]
+        sheetlist.append(newsheet.ToDSType(False))
+ 
+       
+TransactionManager.Instance.TransactionTaskDone()
+OUT = sheetlist
